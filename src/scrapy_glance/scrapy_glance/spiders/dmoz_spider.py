@@ -1,19 +1,29 @@
 import scrapy
 
+from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy_glance.items import ScrapyGlanceItem
+from scrapy.contrib.linkextractors import LinkExtractor
 
-class DmozSpider(scrapy.Spider):
-    name = "dmoz"
-    allowed_domains = ["dmoz.org"]
+class DmozSpider(CrawlSpider):
+    name = "steampowered"    
+    allowed_domains = ["steampowered.com"]
     start_urls = [
-        "http://www.dmoz.org/Computers/Programming/Languages/Python/Books/",
-        "http://www.dmoz.org/Computers/Programming/Languages/Python/Resources/"
+        "http://store.steampowered.com/app/730",
+        "http://store.steampowered.com/app/265590",
+        "http://store.steampowered.com/app/222880"
     ]
+    rules = (
+        Rule(LinkExtractor(
+            allow=['app\[0-9]{1,}']), 
+            callback='parse_items', 
+            follow=False), 
+        )
 
-    def parse(self, response):
-        for sel in response.xpath('//ul/li'):
+    def parse_items(self, response):
+        for founds in response.xpath('//ul/li'):
             item = ScrapyGlanceItem()
-            item['title'] = sel.xpath('a/text()').extract()
-            item['link'] = sel.xpath('a/@href').extract()
-            item['desc'] = sel.xpath('text()').extract()
-            yield item
+            item['name'] = founds.xpath('//div[@class="apphub_AppName"]').extract()
+            item['price'] = founds.xpath('//meta[@itemprop="price"]').extract()
+            #item['description'] = founds.xpath('text()').extract()
+            print item['name']
+            #yield item

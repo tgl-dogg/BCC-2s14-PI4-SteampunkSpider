@@ -8,9 +8,9 @@
 import scrapy
 
 class ScrapyGlanceItem(scrapy.Item):
-    # define the fields for your item here like:
+    # Definição dos nossos itens como objetos (ORM)
     # name = scrapy.Field()	
-    title = scrapy.Field()
-    link = scrapy.Field()
-    desc = scrapy.Field()
+    name = scrapy.Field()
+    price = scrapy.Field()
+    #description = scrapy.Field()
     # pass
