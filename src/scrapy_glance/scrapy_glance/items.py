@@ -14,3 +14,8 @@ class ScrapyGlanceItem(scrapy.Item):
     price = scrapy.Field()
     #description = scrapy.Field()
     # pass
+
+class GroupItem(scrapy.Item):
+	groupName = scrapy.Field()
+	#Um grupo pode ter vários admins...
+	groupAdmin = scrapy.Field()

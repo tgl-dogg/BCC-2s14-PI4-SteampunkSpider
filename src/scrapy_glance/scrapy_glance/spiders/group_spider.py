@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import scrapy
 
-from scrapy_glance.items import ScrapyGlanceItem
+from scrapy_glance.items import GroupItem
 
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
@@ -8,12 +10,10 @@ from scrapy.selector import Selector
 from scrapy.http import Request, FormRequest
 
 class DmozSpider(CrawlSpider):
-    name = "steampowered"
-    allowed_domains = ["store.steampowered.com"]
+    name = "groupSpider"
+    allowed_domains = ["http://steamcommunity.com/"]
     start_urls = [
-        "http://store.steampowered.com/app/730",
-        #"http://store.steampowered.com/app/265590",
-        #"http://store.steampowered.com/app/222880"
+        "http://steamcommunity.com/groups/bfgpg"
     ]
     rules = (
         Rule(
@@ -29,9 +29,13 @@ class DmozSpider(CrawlSpider):
     def parse_items(self, response):
         for founds in response.xpath('//script'):#.xpath('//ul/li'):
             item = ScrapyGlanceItem()
-            item['name'] = founds.xpath('//div[@class="apphub_AppName"]').extract()
-            item['price'] = founds.xpath('//meta[@itemprop="price"]').extract()
+            item['groupName'] = founds.xpath('//div[@class="grouppage_header_name"]').extract()
+
+            #Agora, como pegar só os admins são outros 500...
+            item['groupAdmin'] = founds.xpath('//div[@class="playerAvatar online"]').extract()
+                #founds.xpath('//div[@class="playerAvatar offline"]').extract(),
+                #founds.xpath('//div[@class="playerAvatar in-game"]').extract()
             #item['description'] = founds.xpath('text()').extract()
             print "item: " 
-            print item['name'] + item['price']
+            print item['groupName'] + item['groupAdmin']
             #yield item
