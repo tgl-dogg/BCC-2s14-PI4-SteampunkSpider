@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
-'''
+
 import scrapy
 
-from scrapy_glance.items import GroupItem
+from crawler.items import GroupItem
 
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
 from scrapy.selector import Selector
 from scrapy.http import Request, FormRequest
 
+import re
+
 class DmozSpider(CrawlSpider):
-    name = "groupSpider"
+    name = "groupspider"
     allowed_domains = ["http://steamcommunity.com/"]
     start_urls = [
         "http://steamcommunity.com/groups/bfgpg"
@@ -39,4 +41,4 @@ class DmozSpider(CrawlSpider):
             print "item: " 
             print item['groupName'] + item['groupAdmin']
             #yield item
-#'''
+#
