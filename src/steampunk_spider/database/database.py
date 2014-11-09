@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function
 
 import mysql.connector
@@ -19,190 +20,119 @@ def create_database(cursor):
 TABLES = {}
 ##
 
-# referenciar nacionalidade
-TABLES['jogador'] = (
-    "CREATE TABLE `jogador` ("
-    "  `idSteam` int(11) NOT NULL AUTO_INCREMENT,"
-    "  `url` int NOT NULL,"
-    "  `username` varchar(11) NOT NULL,"
+TABLES['nationality'] = (
+    "CREATE TABLE IF NOT EXISTS `nationality` ("
+    "  `id_nationality` int(5) NOT NULL AUTO_INCREMENT,"
+    "  `name` char(2),"
+    "  PRIMARY KEY (`id_nationality`),"
+    "  UNIQUE (`name`)"
+    ") ENGINE=InnoDB")
+
+TABLES['developer'] = (
+    "CREATE TABLE IF NOT EXISTS `developer` ("
+    "  `id_developer` int(5) NOT NULL AUTO_INCREMENT,"
+    "  `name` varchar(50) NOT NULL,"
+    "  UNIQUE (`name`),"
+    "  PRIMARY KEY (`id_developer`)"
+    ") ENGINE=InnoDB")
+
+TABLES['genre'] = (
+    "CREATE TABLE IF NOT EXISTS `genre` ("
+    "  `id_genre` int(5) NOT NULL AUTO_INCREMENT,"
+    "  `name` varchar(50) NOT NULL,"
+    "  PRIMARY KEY (`id_genre`),"
+    "  UNIQUE (`name`)"
+    ") ENGINE=InnoDB")
+
+TABLES['tag'] = (
+    "CREATE TABLE IF NOT EXISTS `tag` ("
+    "  `id_tag` int(5) NOT NULL AUTO_INCREMENT,"
+    "  `name` varchar(50) NOT NULL,"
+    "  PRIMARY KEY (`id_tag`),"
+    "  UNIQUE (`name`)"
+    ") ENGINE=InnoDB")
+
+TABLES['player'] = (
+    "CREATE TABLE IF NOT EXISTS `player` ("
+    "  `id_player` int(16) NOT NULL," # vamos usar o steamid
+    "  `url` varchar(100) NOT NULL,"
+    "  `real_name` varchar(100),"
+    "  `username` varchar(100),"
     "  `description` varchar(4000),"
-    "  `realName` varchar(11),"
-    "  `level` int(11),"
-    "  `lastLogOut` datetime,"
-    "  `vacBanCount` int(11),"
-    "  `mainGroup` int(11),"
-    "  PRIMARY KEY (`idSteam`)"
-    ") ENGINE=InnoDB")
-
-TABLES['nacionalidade'] = (
-    "CREATE TABLE `nacionalidade ` ("
-    "  `id` int(11) NOT NULL AUTO_INCREMENT,"
-    "  `name` varchar(11),"
-    "  PRIMARY KEY (`id`)"
-    ") ENGINE=InnoDB")
-
-# referenciar jogador líder
-# pegar nome do grupo
-# fazer tabela jogador-grupo
-TABLES['grupo'] = (
-    "CREATE TABLE `grupo` ("
-    "  `id` int(11) NOT NULL AUTO_INCREMENT,"
-    "  `adm` int(35) NOT NULL,"
-    "  PRIMARY KEY (`id`)"
+    "  `level` int(5),"
+    "  `last_login` varchar(50),"
+    "  `vac_ban` tinyint(1),"    
+    "  `fk_nationality` int(5),"
+    "  PRIMARY KEY (`id_player`),"
+    "  UNIQUE (`url`),"
+    "  FOREIGN KEY (`fk_nationality`) REFERENCES `nationality`(`id_nationality`)"
     ") ENGINE=InnoDB")
 
 TABLES['software'] = (
-    "CREATE TABLE `software` ("
-    "  `id` int(11) NOT NULL AUTO_INCREMENT,"
+    "CREATE TABLE IF NOT EXISTS `software` ("
+    "  `id_software` int(16) NOT NULL," # vamos usar o da steam também
+    "  `url` varchar(100) NOT NULL,"
     "  `name` varchar(35) NOT NULL,"
-    "  `price` int(11) NOT NULL,"
-    "  `description` varchar(4000) NOT NULL,"
-    "  `linux` tinyint(1) NOT NULL,"
-    "  `mac` tinyint(1) NOT NULL,"
-    "  `windows` tinyint(1) NOT NULL,"
-    "  `release_date` date NOT NULL,"
-    "  `game_specs` varchar(200),"
-    "  `size` int(11),"
-    "  PRIMARY KEY (`id`)"
+    "  `price` numeric(6,2),"
+    "  `description` varchar(4000),"
+    "  `linux` tinyint(1),"
+    "  `mac` tinyint(1),"
+    "  `windows` tinyint(1),"
+    "  `release_date` varchar(30),"
+    "  `hdd_space` numeric(10,2),"
+    "  UNIQUE (`url`),"
+    "  PRIMARY KEY (`id_software`)"
     ") ENGINE=InnoDB")
 
-# checar tamanho de nome para developer
-TABLES['developer'] = (
-    "CREATE TABLE `developer` ("
-    "  `id` int(11) NOT NULL AUTO_INCREMENT,"
-    "  `name` int(35) NOT NULL,"
-    "  PRIMARY KEY (`id`)"
-    ") ENGINE=InnoDB")
-
-# checar máximo de textos por post
 TABLES['post'] = (
-    "CREATE TABLE `post` ("
-    "  `id` int(11) NOT NULL AUTO_INCREMENT,"
-    "  `title` int(75) NOT NULL,"
-    "  `text` int(500) NOT NULL,"
-    "  PRIMARY KEY (`id`)"
+    "CREATE TABLE IF NOT EXISTS `post` ("
+    "  `id_post` int(10) NOT NULL AUTO_INCREMENT,"
+    "  `title` varchar(100) NOT NULL,"
+    "  `body` varchar(4000) NOT NULL,"
+    "  `fk_player` int(16) NOT NULL,"
+    "  `fk_software` int(16) NOT NULL,"
+    "  PRIMARY KEY (`id_post`),"
+    "  FOREIGN KEY (`fk_player`) REFERENCES `player`(`id_player`),"
+    "  FOREIGN KEY (`fk_software`) REFERENCES `software`(`id_software`)"
     ") ENGINE=InnoDB")
-
-TABLES['genero'] = (
-    "CREATE TABLE `genero` ("
-    "  `id` int(11) NOT NULL AUTO_INCREMENT,"
-    "  `name` int(35) NOT NULL,"
-    "  PRIMARY KEY (`id`)"
-    ") ENGINE=InnoDB")
-
-TABLES[‘rel_player_nacionalidade’] = (
-    "CREATE TABLE `rel_player_nacionalidade ` ("
-
-    ") ENGINE=InnoDB")
-
 
 # amigos
 TABLES['rel_player_player'] = (
-    "CREATE TABLE `rel_player_player ` ("
-
+    "CREATE TABLE IF NOT EXISTS `rel_player_player` ("
+    "  `fk_player1` int(16) NOT NULL,"
+    "  `fk_player2` int(16) NOT NULL,"
+    "  PRIMARY KEY (`fk_player1`, `fk_player2`),"
+    "  FOREIGN KEY (`fk_player1`) REFERENCES `player`(`id_player`),"
+    "  FOREIGN KEY (`fk_player2`) REFERENCES `player`(`id_player`)"
     ") ENGINE=InnoDB")
 
-# player pertence ao grupo
-TABLES[‘rel_player_group’] = (
-    "CREATE TABLE `rel_player_group ` ("
-
+TABLES['rel_player_software'] = (
+    "CREATE TABLE IF NOT EXISTS `rel_player_software` ("
+    "  `fk_player` int(16) NOT NULL,"
+    "  `fk_software` int(16) NOT NULL,"
+    "  `horas` int(11),"
+    "  PRIMARY KEY (`fk_player`, `fk_software`),"
+    "  FOREIGN KEY (`fk_player`) REFERENCES `player`(`id_player`),"
+    "  FOREIGN KEY (`fk_software`) REFERENCES `software`(`id_software`)"
     ") ENGINE=InnoDB")
 
-# player tem o jogo
-TABLES[‘rel_player_software’] = (
-    "CREATE TABLE `rel_player_software ` ("
-    "  `horas` int(11)"
-
-
+TABLES['rel_software_genre'] = (
+    "CREATE TABLE IF NOT EXISTS `rel_software_genre` ("
+    "  `fk_genre` int(5) NOT NULL,"
+    "  `fk_software` int(16) NOT NULL,"
+    "  PRIMARY KEY (`fk_genre`, `fk_software`),"
+    "  FOREIGN KEY (`fk_genre`) REFERENCES `genre`(`id_genre`),"
+    "  FOREIGN KEY (`fk_software`) REFERENCES `software`(`id_software`)"
     ") ENGINE=InnoDB")
 
-# jogo tem gênero
-TABLES[‘rel_software_genero’] = (
-    "CREATE TABLE `rel_software_genero ` ("
-
+TABLES['rel_software_developer'] = (
+    "CREATE TABLE IF NOT EXISTS `rel_software_developer` ("
+    "  `fk_developer` int(5) NOT NULL,"
+    "  `fk_software` int(16) NOT NULL,"
+    "  PRIMARY KEY (`fk_developer`, `fk_software`),"
+    "  FOREIGN KEY (`fk_developer`) REFERENCES `developer`(`id_developer`),"
+    "  FOREIGN KEY (`fk_software`) REFERENCES `software`(`id_software`)"
     ") ENGINE=InnoDB")
-
-# jogo tem desenvolvedor
-TABLES[‘rel_software_developer’] = (
-    "CREATE TABLE `rel_software_developer ` ("
-
-    ") ENGINE=InnoDB")
-
-# item da comunidade tem post
-TABLES[‘rel_software_post’] = (
-    "CREATE TABLE `rel_software_post ` ("
-
-    ") ENGINE=InnoDB")
-
-##
-# TABLES['employees'] = (
-#     "CREATE TABLE `employees` ("
-#     "  `emp_no` int(11) NOT NULL AUTO_INCREMENT,"
-#     "  `birth_date` date NOT NULL,"
-#     "  `first_name` varchar(14) NOT NULL,"
-#     "  `last_name` varchar(16) NOT NULL,"
-#     "  `gender` enum('M','F') NOT NULL,"
-#     "  `hire_date` date NOT NULL,"
-#     "  PRIMARY KEY (`emp_no`)"
-#     ") ENGINE=InnoDB")
-
-# TABLES['departments'] = (
-#     "CREATE TABLE `departments` ("
-#     "  `dept_no` char(4) NOT NULL,"
-#     "  `dept_name` varchar(40) NOT NULL,"
-#     "  PRIMARY KEY (`dept_no`), UNIQUE KEY `dept_name` (`dept_name`)"
-#     ") ENGINE=InnoDB")
-
-# TABLES['salaries'] = (
-#     "CREATE TABLE `salaries` ("
-#     "  `emp_no` int(11) NOT NULL,"
-#     "  `salary` int(11) NOT NULL,"
-#     "  `from_date` date NOT NULL,"
-#     "  `to_date` date NOT NULL,"
-#     "  PRIMARY KEY (`emp_no`,`from_date`), KEY `emp_no` (`emp_no`),"
-#     "  CONSTRAINT `salaries_ibfk_1` FOREIGN KEY (`emp_no`) "
-#     "     REFERENCES `employees` (`emp_no`) ON DELETE CASCADE"
-#     ") ENGINE=InnoDB")
-
-# TABLES['dept_emp'] = (
-#     "CREATE TABLE `dept_emp` ("
-#     "  `emp_no` int(11) NOT NULL,"
-#     "  `dept_no` char(4) NOT NULL,"
-#     "  `from_date` date NOT NULL,"
-#     "  `to_date` date NOT NULL,"
-#     "  PRIMARY KEY (`emp_no`,`dept_no`), KEY `emp_no` (`emp_no`),"
-#     "  KEY `dept_no` (`dept_no`),"
-#     "  CONSTRAINT `dept_emp_ibfk_1` FOREIGN KEY (`emp_no`) "
-#     "     REFERENCES `employees` (`emp_no`) ON DELETE CASCADE,"
-#     "  CONSTRAINT `dept_emp_ibfk_2` FOREIGN KEY (`dept_no`) "
-#     "     REFERENCES `departments` (`dept_no`) ON DELETE CASCADE"
-#     ") ENGINE=InnoDB")
-
-# TABLES['dept_manager'] = (
-#     "  CREATE TABLE `dept_manager` ("
-#     "  `dept_no` char(4) NOT NULL,"
-#     "  `emp_no` int(11) NOT NULL,"
-#     "  `from_date` date NOT NULL,"
-#     "  `to_date` date NOT NULL,"
-#     "  PRIMARY KEY (`emp_no`,`dept_no`),"
-#     "  KEY `emp_no` (`emp_no`),"
-#     "  KEY `dept_no` (`dept_no`),"
-#     "  CONSTRAINT `dept_manager_ibfk_1` FOREIGN KEY (`emp_no`) "
-#     "     REFERENCES `employees` (`emp_no`) ON DELETE CASCADE,"
-#     "  CONSTRAINT `dept_manager_ibfk_2` FOREIGN KEY (`dept_no`) "
-#     "     REFERENCES `departments` (`dept_no`) ON DELETE CASCADE"
-#     ") ENGINE=InnoDB")
-
-# TABLES['titles'] = (
-#     "CREATE TABLE `titles` ("
-#     "  `emp_no` int(11) NOT NULL,"
-#     "  `title` varchar(50) NOT NULL,"
-#     "  `from_date` date NOT NULL,"
-#     "  `to_date` date DEFAULT NULL,"
-#     "  PRIMARY KEY (`emp_no`,`title`,`from_date`), KEY `emp_no` (`emp_no`),"
-#     "  CONSTRAINT `titles_ibfk_1` FOREIGN KEY (`emp_no`)"
-#     "     REFERENCES `employees` (`emp_no`) ON DELETE CASCADE"
-#     ") ENGINE=InnoDB")
 
 print ("try connection")
 
