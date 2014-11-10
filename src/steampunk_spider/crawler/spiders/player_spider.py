@@ -17,10 +17,21 @@ class DmozSpider(CrawlSpider):
     allowed_domains = ["steamcommunity.com"]
     start_urls = [
         "http://steamcommunity.com/id/tgl_dogg",
+        "http://steamcommunity.com/profiles/76561197961417376",
+        "http://steamcommunity.com/profiles/76561198041876420",
         "http://steamcommunity.com/id/palmdesert",
         "http://steamcommunity.com/id/flushjackson",
-        "http://steamcommunity.com/profiles/76561197961417376",
     ]
+
+
+    # Esses itens também são da zoeira (gotta list'em all!)
+    # games = scrapy.Field()
+    # friends = scrapy.Field()
+    # groups = scrapy.Field()
+
+    # Tratar este caso:
+    # http://steamcommunity.com/profiles/76561197991859336/friends/
+    # http://steamcommunity.com/id/tgl_dogg/friends/
     rules = (
         Rule(
             LinkExtractor(
@@ -43,37 +54,19 @@ class DmozSpider(CrawlSpider):
         # Itens descomentados estão GG já
 
         item['url'] = response.url
-        item['name'] = response.xpath('//div[@class="persona_name"]/text()').extract()[0].strip()
-        # item['idSteam'] = response.xpath('//"]').extract()
+        # item['name'] = response.xpath('//div[@class="persona_name"]/text()').extract()[0].strip()
+        item['id_steam'] = response.xpath('substring-before(substring-after(//script[@type="text/javascript"], "steamid"), "personaname")').extract()
         
-        #   Os dois acima não sei de onde extrair, 
-        #   entretanto, eu tenho a ligeira impressão de que o teremos 
-        # "antes", dado que acessamos o jogador pelo url dele, 
-        # e o id pode sempre ser usado no url. De qualquer forma, 
-        # este tipo de presunção é extremamente perigoso, 
-        # então abaixo segue o formato onde eles se encontram, 
-        # numerado em (1)
-        #
+        # <script type="text/javascript">
+        #     g_rgProfileData = {"url":"http:\/\/steamcommunity.com\/profiles\/76561198128011421\/","steamid":"76561198128011421","personaname":"Bea.triz"};
+        # </script>
         
-        # Tá gg
-        item['level'] = response.xpath('//div[@class="persona_name persona_level"]//span[@class="friendPlayerLevelNum"]/text()').extract()
-        
-        # Tá gg
-        item['description'] = response.xpath('//div[@class="profile_summary"]/text()').extract()
-        
-        # Tá gg
-        item['real_name'] = response.xpath('//div[@class="header_real_name ellipsis"]/text()').extract()[0].strip()
-        
-        # Tá gg
-        item['vac_ban'] = response.xpath('//div[@class="profile_ban_status"]/text()').extract()
-            
-        # Tá gg
-        item['last_login'] = response.xpath('//div[@class="profile_in_game_name"]/text()').extract() #isto pega uma string completa do tipo: Última vez online: há 24 mins ou Dísponível
-        
-        # item['mainGroup'] = response.xpath('//dic[@class="profile_group profile_primary_group"]').extract() #isto pega a string abaixo em (2)
-        
-        # Tá gg já
-        item['nationality'] = response.xpath('//img[@class="profile_flag"]').re('(?:countryflags/)(.+?)(.gif)')[0] #vem no formato escrito abaixo (3)
+        # item['level'] = response.xpath('//div[@class="persona_name persona_level"]//span[@class="friendPlayerLevelNum"]/text()').extract()
+        item['description'] = utils.description_validator(response.xpath('//div[@class="profile_summary"]/text()').extract())
+        # item['real_name'] = response.xpath('//div[@class="header_real_name ellipsis"]/text()').extract()[0].strip()
+        # item['vac_ban'] = response.xpath('//div[@class="profile_ban_status"]/text()').extract()
+        # item['last_login'] = response.xpath('//div[@class="profile_in_game_name"]/text()').extract() #isto pega uma string completa do tipo: Última vez online: há 24 mins ou Dísponível
+        # nationality = response.xpath('//img[@class="profile_flag"]').re('(?:countryflags/)(.+?)(.gif)')[0] #vem no formato escrito abaixo (3)
             
         yield item
 
