@@ -10,7 +10,7 @@ DB_NAME = 'steampunk'
 def create_database(cursor):
     try:
     	# utf-8 4life <3
-        cursor.execute("CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(DB_NAME))
+        cursor.execute("CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE utf8_general_ci".format(DB_NAME))
     except mysql.connector.Error as err:
         print("Failed creating database: {}".format(err))
         exit(1)
@@ -84,17 +84,17 @@ TABLES['software'] = (
     "  PRIMARY KEY (`id_software`)"
     ") ENGINE=InnoDB")
 
-TABLES['post'] = (
-    "CREATE TABLE IF NOT EXISTS `post` ("
-    "  `id_post` int(10) NOT NULL AUTO_INCREMENT,"
-    "  `title` varchar(100) NOT NULL,"
-    "  `body` varchar(4000) NOT NULL,"
-    "  `fk_player` int(16) NOT NULL,"
-    "  `fk_software` int(16) NOT NULL,"
-    "  PRIMARY KEY (`id_post`),"
-    "  FOREIGN KEY (`fk_player`) REFERENCES `player`(`id_player`),"
-    "  FOREIGN KEY (`fk_software`) REFERENCES `software`(`id_software`)"
-    ") ENGINE=InnoDB")
+# TABLES['post'] = (
+#     "CREATE TABLE IF NOT EXISTS `post` ("
+#     "  `id_post` int(10) NOT NULL AUTO_INCREMENT,"
+#     "  `title` varchar(100) NOT NULL,"
+#     "  `body` varchar(4000) NOT NULL,"
+#     "  `fk_player` int(16) NOT NULL,"
+#     "  `fk_software` int(16) NOT NULL,"
+#     "  PRIMARY KEY (`id_post`),"
+#     "  FOREIGN KEY (`fk_player`) REFERENCES `player`(`id_player`),"
+#     "  FOREIGN KEY (`fk_software`) REFERENCES `software`(`id_software`)"
+#     ") ENGINE=InnoDB")
 
 # amigos
 TABLES['rel_player_player'] = (
@@ -113,6 +113,15 @@ TABLES['rel_player_software'] = (
     "  `horas` int(11),"
     "  PRIMARY KEY (`fk_player`, `fk_software`),"
     "  FOREIGN KEY (`fk_player`) REFERENCES `player`(`id_player`),"
+    "  FOREIGN KEY (`fk_software`) REFERENCES `software`(`id_software`)"
+    ") ENGINE=InnoDB")
+
+TABLES['rel_software_tag'] = (
+    "CREATE TABLE IF NOT EXISTS `rel_software_tag` ("
+    "  `fk_tag` int(5) NOT NULL,"
+    "  `fk_software` int(16) NOT NULL,"
+    "  PRIMARY KEY (`fk_tag`, `fk_software`),"
+    "  FOREIGN KEY (`fk_tag`) REFERENCES `tag`(`id_tag`),"
     "  FOREIGN KEY (`fk_software`) REFERENCES `software`(`id_software`)"
     ") ENGINE=InnoDB")
 
@@ -160,6 +169,7 @@ for name, ddl in TABLES.iteritems():
         if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
             print("already exists.")
         else:
+            
             print(err.msg)
     else:
         print("OK")
