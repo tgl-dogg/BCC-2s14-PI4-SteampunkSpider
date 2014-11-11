@@ -218,6 +218,7 @@ def parse_storeitem(self, response, db_conn, db_cursor):
     return item
   
 # scrapy crawl spider -o steam.json
+# scrapy crawl somespider -s JOBDIR=crawls/somespider-1
 
 #old_widow
 #@TGL_Doggbatata23
@@ -259,7 +260,7 @@ class StoreSpider(CrawlSpider):
             callback='parse_items',
             process_links='link_processor', 
             process_request='request_processor',
-            follow=False
+            follow=True
         ), 
     )
 
