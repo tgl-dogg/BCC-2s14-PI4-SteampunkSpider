@@ -18,11 +18,12 @@ from scrapy.http import Request, FormRequest
 
 import re
 
+# definir um update maroto
+
 def insert_software(db_conn, db_cursor, software):
-    add_software = ("INSERT IGNORE INTO software "
+    add_software = ("INSERT INTO software "
               "(id_software, url, name, price, description, linux, mac, windows, release_date, hdd_space) "
               "VALUES (%(id_software)s, %(url)s, %(name)s, %(price)s, %(description)s, %(linux)s, %(mac)s, %(windows)s, %(release_date)s, %(hdd_space)s)")
-              # adicionar isto aqui depois "ON DUPLICATE KEY UPDATE")
 
     data_software = {
         'id_software': software['id_software'],
@@ -44,65 +45,68 @@ def insert_software(db_conn, db_cursor, software):
     db_conn.commit()
 
 def insert_genre(db_conn, db_cursor, genre):
-    add_genre = ("INSERT IGNORE INTO genre "
-              "(name) "
-              "VALUES ('%s')" % genre)
+    # MySQL escapes \' with another '
+    genre = genre.replace("'", "''")
 
-    db_cursor.execute(add_genre)
-    db_conn.commit()
-
-    genre_id = db_cursor.lastrowid
-
-    if (genre_id == None or genre_id == 0):
-        query = ("SELECT id_genre FROM genre WHERE name LIKE \'%s\'" % genre)
-        print(query)
-        db_cursor.execute(query)
+    exist_check = ("SELECT id_genre FROM genre WHERE name LIKE \'%s\'" % genre)
+    db_cursor.execute(exist_check)
         
-        for (id_genre) in db_cursor:
-            genre_id = id_genre[0]
+    data_exists = db_cursor.fetchone()
+    if data_exists:
+        id_genre = data_exists[0]
+    else:
+        insert = ("INSERT INTO genre "
+                "(name) "
+                "VALUES ('%s')" % genre)
+
+        db_cursor.execute(insert)
+        db_conn.commit()
+
+        id_genre = db_cursor.lastrowid
     
-    return genre_id
+    return id_genre
 
 def insert_tag(db_conn, db_cursor, tag):
     tag = tag.replace("'", "''")
-    add_tag = ("INSERT IGNORE INTO tag "
+
+    exist_check = ("SELECT id_tag FROM tag WHERE name LIKE \'%s\'" % tag)
+    db_cursor.execute(exist_check)
+
+    data_exists = db_cursor.fetchone()
+    if data_exists:
+        id_tag = data_exists[0]
+    else:
+        insert = ("INSERT INTO tag "
                 "(name) "
                 "VALUES ('%s')" % tag)
 
-    db_cursor.execute(add_tag)
-    db_conn.commit()
+        db_cursor.execute(insert)
+        db_conn.commit()
 
-    tag_id = db_cursor.lastrowid
+        id_tag = db_cursor.lastrowid
 
-    if (tag_id == None or tag_id == 0):
-        query = ("SELECT id_tag FROM tag WHERE name LIKE \'%s\'" % tag)
-        print(query)
-        db_cursor.execute(query)
-        
-        for (id_tag) in db_cursor:
-            tag_id = id_tag[0]
-
-    return tag_id
+    return id_tag
 
 def insert_developer(db_conn, db_cursor, developer):
-    add_developer = ("INSERT IGNORE INTO developer "
+    developer = developer.replace("'", "''")
+
+    exist_check = ("SELECT id_developer FROM developer WHERE name LIKE \'%s\'" % developer)
+    db_cursor.execute(exist_check)
+
+    data_exists = db_cursor.fetchone()
+    if data_exists:
+        id_dev = data_exists[0]
+    else:
+        insert = ("INSERT INTO developer "
               "(name) "
               "VALUES ('%s')" % developer)
 
-    db_cursor.execute(add_developer)
-    db_conn.commit()
+        db_cursor.execute(insert)
+        db_conn.commit()
 
-    dev_id = db_cursor.lastrowid
-
-    if (dev_id == None or dev_id == 0):
-        query = ("SELECT id_developer FROM developer WHERE name LIKE \'%s\'" % developer)
-        print(query)
-        db_cursor.execute(query)
-        
-        for (id_developer) in db_cursor:
-            dev_id = id_developer[0]
-    
-    return dev_id
+        id_dev = db_cursor.lastrowid
+   
+    return id_dev
 
 def insert_rel_software_genre(db_conn, db_cursor, id_software, id_genre):
     add_rel = ("INSERT INTO rel_software_genre "
@@ -129,18 +133,30 @@ def insert_rel_software_developer(db_conn, db_cursor, id_software, id_developer)
     db_conn.commit()
 
 def parse_storeitem(self, response, db_conn, db_cursor):
+    url = response.url
+
     # no name, no game    
     name_list = response.xpath('//div[@class="apphub_AppName"]/text()').extract()
     name = name_list[0].encode('utf-8')
     if (not name):
         return
 
-    url = response.url
+    id_software = 0
+    id_regex = re.compile('([0-9]{1,})')
+    id_search = re.search(id_regex, str(url))
+    id_software = int(id_search.groups(0)[0])    
+
+    # Checar se o item já existe é uma boa.
+    # check_software_item = ("SELECT COUNT(1) FROM software WHERE id_software=%s" % id_software) 
+    # db_cursor.execute(check_software_item)    
+    # if db_cursor.fetchone()[0]:
+    #     return
+
     mac = utils.os_validator(response.xpath('//div[contains(@data-os, "mac")]').extract())
     lin = utils.os_validator(response.xpath('//div[contains(@data-os, "lin")]').extract())
     win = utils.os_validator(response.xpath('//div[contains(@data-os, "win")]').extract())
     price = utils.price_validator(response.xpath('//meta[@itemprop="price"]/@content').extract())
-    description = utils.description_validator(response.xpath('//div[@id="game_area_description"]/text()').extract())
+    description = utils.description_validator(response.xpath('//div[@id="game_area_description"]//text()').extract())
 
     release_date = ""
     release = response.xpath('//span[@class="date"]/text()').extract()
@@ -158,13 +174,19 @@ def parse_storeitem(self, response, db_conn, db_cursor):
         if (str(src_size.groups(0)[1]) == "GB"):
             size *= 1024
 
-    id_software = 0
-    id_regex = re.compile('([0-9]{1,})')
-    id_search = re.search(id_regex, str(url))
-    id_software = int(id_search.groups(0)[0])    
+    item = StoreItem()
+    item['url'] = url    
+    item['id_software'] = id_software
+    item['name'] = name
+    item['price'] = price
+    item['description'] = description
+    item['mac'] = mac
+    item['linux'] = lin
+    item['windows'] = win
+    item['release_date'] = release_date
+    item['hdd_space'] = size
 
-    # para otimizar, vamos garantir que developer, tag e genre já não estejam inseridos no banco, porque isso pode demorar um pouco.
-
+    # Insere informações de desenvolvedor, tag e gênero
     developers = response.xpath('//div[@class="details_block"]/a[contains(@href, "http://store.steampowered.com/search/?developer")]/text()')
     dev_ids = []
     for dev in developers:
@@ -180,20 +202,10 @@ def parse_storeitem(self, response, db_conn, db_cursor):
     for genre in genres:         
         genre_ids.append(insert_genre(db_conn, db_cursor, genre.extract().strip()))
 
-    item = StoreItem()
-    item['url'] = url    
-    item['id_software'] = id_software
-    item['name'] = name
-    item['price'] = price
-    item['description'] = description
-    item['mac'] = mac
-    item['linux'] = lin
-    item['windows'] = win
-    item['release_date'] = release_date
-    item['hdd_space'] = size
-
+    # Insere o jogo
     insert_software(db_conn, db_cursor, item)
 
+    # Insere as relações do jogo
     for id_genre in genre_ids:
         insert_rel_software_genre(db_conn, db_cursor, id_software, id_genre)
 
@@ -219,13 +231,15 @@ class StoreSpider(CrawlSpider):
     name = "storespider"
     allowed_domains = ["store.steampowered.com"]
     start_urls = [
-        # "http://store.steampowered.com/",
-        # "http://store.steampowered.com/app/242700/",
-        # "http://store.steampowered.com/app/209000"
+        "http://store.steampowered.com/",
+        "http://store.steampowered.com/app/242700/",
+        "http://store.steampowered.com/app/209000"
         "http://store.steampowered.com/app/730/",
-        # "http://store.steampowered.com/app/218620/",
-        # "http://store.steampowered.com/app/265590",
-        # "http://store.steampowered.com/app/222880"
+        "http://store.steampowered.com/app/321080/",
+        "http://store.steampowered.com/app/258817",
+        "http://store.steampowered.com/app/218620/",
+        "http://store.steampowered.com/app/265590",
+        "http://store.steampowered.com/app/222880",
     ]
 
     # Adicionar tolerância por gênero e tags para crawling
@@ -238,17 +252,18 @@ class StoreSpider(CrawlSpider):
         Rule(
             LinkExtractor(
                 #recommended/morelike/app/[0-9]{1,}'
-                allow=('app/[0-9]{1,}'),
+                allow=('app/[0-9]{1,}', 'store.steampowered.com/(tag|genre|search)'),
                 deny=('\?l', 'facebook', 'twitter', 'login', 'reddit'),      
             ),
             
             callback='parse_items',
             process_links='link_processor', 
             process_request='request_processor',
-            follow=True
+            follow=False
         ), 
     )
 
+    search_url = re.compile('store.steampowered.com/(tag|genre|search)')
     software_url = re.compile('store.steampowered.com/app/[0-9]{1,}')
     recommended_url = re.compile('(.+?)/recommended')
     agecheck_url = re.compile('store.steampowered.com/agecheck/app/[0-9]{1,}')
@@ -269,9 +284,10 @@ class StoreSpider(CrawlSpider):
     def parse_items(self, response):
         is_recommended_url = re.search(self.recommended_url, response.url) != None
         is_software_url = re.search(self.software_url, response.url) != None
+        is_search_url = re.search(self.search_url, response.url) != None
         
         # São urls com listagem de jogos, não parseamos elas, apenas visitamos para pegar mais jogos.
-        if (is_recommended_url):
+        if (is_recommended_url or is_search_url):
             return
 
         if (is_software_url):

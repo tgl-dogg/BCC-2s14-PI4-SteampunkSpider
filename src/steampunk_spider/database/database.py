@@ -64,7 +64,6 @@ TABLES['player'] = (
     "  `vac_ban` tinyint(1),"    
     "  `fk_nationality` int(5),"
     "  PRIMARY KEY (`id_player`),"
-    "  UNIQUE (`url`),"
     "  FOREIGN KEY (`fk_nationality`) REFERENCES `nationality`(`id_nationality`)"
     ") ENGINE=InnoDB")
 
@@ -72,15 +71,14 @@ TABLES['software'] = (
     "CREATE TABLE IF NOT EXISTS `software` ("
     "  `id_software` int(16) NOT NULL," # vamos usar o da steam também
     "  `url` varchar(100) NOT NULL,"
-    "  `name` varchar(35) NOT NULL,"
-    "  `price` numeric(6,2),"
-    "  `description` varchar(4000),"
+    "  `name` varchar(100) NOT NULL,"
+    "  `price` numeric(7,2),"
+    "  `description` varchar(20000),"
     "  `linux` tinyint(1),"
     "  `mac` tinyint(1),"
     "  `windows` tinyint(1),"
     "  `release_date` varchar(30),"
     "  `hdd_space` numeric(10,2),"
-    "  UNIQUE (`url`),"
     "  PRIMARY KEY (`id_software`)"
     ") ENGINE=InnoDB")
 
