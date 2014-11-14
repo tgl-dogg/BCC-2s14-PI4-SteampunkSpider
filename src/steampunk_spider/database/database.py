@@ -4,7 +4,7 @@ from __future__ import print_function
 import mysql.connector
 from mysql.connector import errorcode
 
-DB_NAME = 'steampunk_test'
+DB_NAME = 'steampunk'
 
 # Creates database if it doesn't exists yet
 def create_database(cursor):
@@ -124,11 +124,11 @@ TABLES['rel_player_software'] = (
     "CREATE TABLE IF NOT EXISTS `rel_player_software` ("
     "  `fk_player` bigint(64) NOT NULL,"
     "  `fk_software` int(16) NOT NULL,"
-    "  `horas` int(11),"
+    "  `hours` numeric(10,4),"
     "  PRIMARY KEY (`fk_player`, `fk_software`),"
     "  FOREIGN KEY (`fk_player`) REFERENCES `player`(`id_player`),"
     "  FOREIGN KEY (`fk_software`) REFERENCES `software`(`id_software`),"
-    "  INDEX (`horas`)"
+    "  INDEX (`hours`)"
     ") ENGINE=InnoDB")
 
 TABLES['rel_software_tag'] = (
