@@ -4,7 +4,7 @@ from __future__ import print_function
 import mysql.connector
 from mysql.connector import errorcode
 
-DB_NAME = 'steampunk'
+DB_NAME = 'steampunk_test'
 
 # Creates database if it doesn't exists yet
 def create_database(cursor):
@@ -25,15 +25,15 @@ TABLES['nationality'] = (
     "  `id_nationality` int(5) NOT NULL AUTO_INCREMENT,"
     "  `name` char(2),"
     "  PRIMARY KEY (`id_nationality`),"
-    "  UNIQUE (`name`)"
+    "  UNIQUE INDEX (`name`)"
     ") ENGINE=InnoDB")
 
 TABLES['developer'] = (
     "CREATE TABLE IF NOT EXISTS `developer` ("
     "  `id_developer` int(5) NOT NULL AUTO_INCREMENT,"
     "  `name` varchar(50) NOT NULL,"
-    "  UNIQUE (`name`),"
-    "  PRIMARY KEY (`id_developer`)"
+    "  PRIMARY KEY (`id_developer`),"
+    "  UNIQUE INDEX (`name`)"
     ") ENGINE=InnoDB")
 
 TABLES['genre'] = (
@@ -41,7 +41,7 @@ TABLES['genre'] = (
     "  `id_genre` int(5) NOT NULL AUTO_INCREMENT,"
     "  `name` varchar(50) NOT NULL,"
     "  PRIMARY KEY (`id_genre`),"
-    "  UNIQUE (`name`)"
+    "  UNIQUE INDEX (`name`)"
     ") ENGINE=InnoDB")
 
 TABLES['tag'] = (
@@ -49,22 +49,33 @@ TABLES['tag'] = (
     "  `id_tag` int(5) NOT NULL AUTO_INCREMENT,"
     "  `name` varchar(50) NOT NULL,"
     "  PRIMARY KEY (`id_tag`),"
-    "  UNIQUE (`name`)"
+    "  UNIQUE INDEX (`name`)"
     ") ENGINE=InnoDB")
 
 TABLES['player'] = (
     "CREATE TABLE IF NOT EXISTS `player` ("
-    "  `id_player` int(16) NOT NULL," # vamos usar o steamid
+    "  `id_player` bigint(64) NOT NULL AUTO_INCREMENT," # vamos usar o steamid    
+    "  `id_steam` varchar(30) NOT NULL," # vamos usar o steamid
     "  `url` varchar(100) NOT NULL,"
-    "  `real_name` varchar(100),"
-    "  `username` varchar(100),"
-    "  `description` varchar(4000),"
+    "  `real_name` varchar(200),"
+    "  `username` varchar(200),"
+    "  `description` varchar(20000),"
     "  `level` int(5),"
-    "  `last_login` varchar(50),"
-    "  `vac_ban` tinyint(1),"    
+    "  `last_login` varchar(100),"
+    "  `vac_ban` tinyint(1),"
+    "  `public` tinyint(1),"
+    "  `bcc` tinyint(1),"    
     "  `fk_nationality` int(5),"
     "  PRIMARY KEY (`id_player`),"
-    "  FOREIGN KEY (`fk_nationality`) REFERENCES `nationality`(`id_nationality`)"
+    "  FOREIGN KEY (`fk_nationality`) REFERENCES `nationality`(`id_nationality`),"
+    "  UNIQUE INDEX (`id_steam`),"
+    "  UNIQUE INDEX (`url`),"
+    "  INDEX (`username`),"
+    "  INDEX (`real_name`),"
+    "  INDEX (`vac_ban`),"
+    "  INDEX (`public`),"    
+    "  INDEX (`bcc`),"    
+    "  INDEX (`fk_nationality`)"
     ") ENGINE=InnoDB")
 
 TABLES['software'] = (
@@ -79,7 +90,12 @@ TABLES['software'] = (
     "  `windows` tinyint(1),"
     "  `release_date` varchar(30),"
     "  `hdd_space` numeric(10,2),"
-    "  PRIMARY KEY (`id_software`)"
+    "  PRIMARY KEY (`id_software`),"
+    "  UNIQUE INDEX (`url`),"
+    "  INDEX (`name`),"
+    "  INDEX (`price`),"
+    "  INDEX (`release_date`),"
+    "  INDEX (`hdd_space`)"
     ") ENGINE=InnoDB")
 
 # TABLES['post'] = (
@@ -87,7 +103,7 @@ TABLES['software'] = (
 #     "  `id_post` int(10) NOT NULL AUTO_INCREMENT,"
 #     "  `title` varchar(100) NOT NULL,"
 #     "  `body` varchar(4000) NOT NULL,"
-#     "  `fk_player` int(16) NOT NULL,"
+#     "  `fk_player` bigint(64) NOT NULL,"
 #     "  `fk_software` int(16) NOT NULL,"
 #     "  PRIMARY KEY (`id_post`),"
 #     "  FOREIGN KEY (`fk_player`) REFERENCES `player`(`id_player`),"
@@ -97,8 +113,8 @@ TABLES['software'] = (
 # amigos
 TABLES['rel_player_player'] = (
     "CREATE TABLE IF NOT EXISTS `rel_player_player` ("
-    "  `fk_player1` int(16) NOT NULL,"
-    "  `fk_player2` int(16) NOT NULL,"
+    "  `fk_player1` bigint(64) NOT NULL,"
+    "  `fk_player2` bigint(64) NOT NULL,"
     "  PRIMARY KEY (`fk_player1`, `fk_player2`),"
     "  FOREIGN KEY (`fk_player1`) REFERENCES `player`(`id_player`),"
     "  FOREIGN KEY (`fk_player2`) REFERENCES `player`(`id_player`)"
@@ -106,12 +122,13 @@ TABLES['rel_player_player'] = (
 
 TABLES['rel_player_software'] = (
     "CREATE TABLE IF NOT EXISTS `rel_player_software` ("
-    "  `fk_player` int(16) NOT NULL,"
+    "  `fk_player` bigint(64) NOT NULL,"
     "  `fk_software` int(16) NOT NULL,"
     "  `horas` int(11),"
     "  PRIMARY KEY (`fk_player`, `fk_software`),"
     "  FOREIGN KEY (`fk_player`) REFERENCES `player`(`id_player`),"
-    "  FOREIGN KEY (`fk_software`) REFERENCES `software`(`id_software`)"
+    "  FOREIGN KEY (`fk_software`) REFERENCES `software`(`id_software`),"
+    "  INDEX (`horas`)"
     ") ENGINE=InnoDB")
 
 TABLES['rel_software_tag'] = (
