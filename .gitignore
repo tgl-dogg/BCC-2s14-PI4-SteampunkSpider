@@ -21,12 +21,12 @@
 *.tar
 *.zip
  
-# Logs and databases #
+# Logs, databases and data #
 ######################
 *.log
+*.sql
+*.json
 *.sqlite
- 
-# Keeping .sql for sake of sharing
 
 # OS generated files #
 ######################
