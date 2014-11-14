@@ -36,3 +36,10 @@ class PostItem(scrapy.Item):
 	title = scrapy.Field()
 	text = scrapy.Field()
 	owner = scrapy.Field()
+
+class GameItem(scrapy.Item):
+	id_game = scrapy.Field()
+	hours = scrapy.Field()
+	name = scrapy.Field()
+	url = scrapy.Field()
+	description = scrapy.Field()
