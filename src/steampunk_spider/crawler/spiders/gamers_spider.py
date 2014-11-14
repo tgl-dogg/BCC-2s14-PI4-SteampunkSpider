@@ -27,7 +27,7 @@ import re
 
 #####################################################################
 ############################ HOW TO RUN #############################
-# scrapy crawl gamerspider -s JOBDIR=cache_02/player/gamersspider-1 #
+# scrapy crawl gamersspider -s JOBDIR=cache_02/player/gamersspider-1 #
 #####################################################################
 
 
