@@ -22,12 +22,15 @@ class StoreItem(scrapy.Item):
 class PlayerItem(scrapy.Item):
 	url = scrapy.Field()
 	id_steam = scrapy.Field()
-	name = scrapy.Field()
+	username = scrapy.Field()
 	real_name = scrapy.Field()
 	level = scrapy.Field()
 	description = scrapy.Field()
 	last_login = scrapy.Field()
 	vac_ban = scrapy.Field()
+	nationality = scrapy.Field()
+	public = scrapy.Field()
+	bcc = scrapy.Field()
 
 class PostItem(scrapy.Item):
 	title = scrapy.Field()
