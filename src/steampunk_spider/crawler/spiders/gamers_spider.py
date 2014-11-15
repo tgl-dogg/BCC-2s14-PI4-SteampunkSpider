@@ -136,8 +136,8 @@ class GamersSpider(CrawlSpider):
                     hours = float(game['hours_forever'].replace(',',''))
 
                 if hours < 1:
-                    print ("non-played game:", name)
-                    continue
+                    # Jogou menos de uma hora, provavelmente nem jogou direito, vamos parar por aqui
+                    break;
 
                 item = GameItem()
                 item['id_game'] = id_game
