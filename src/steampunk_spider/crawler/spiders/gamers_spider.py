@@ -69,7 +69,8 @@ def next_player(db_cursor):
     players = []
     game_tab = "/games/?tab=all"
 
-    query = "SELECT id_player, url FROM player where public=1 limit 5001,10000"
+    query = "SELECT id_player, url FROM player where bcc=1"
+    # query = "SELECT id_player, url FROM player where public=1 limit 140000,20000"
     db_cursor.execute(query)
 
     for id_player, url in db_cursor:
@@ -135,9 +136,9 @@ class GamersSpider(CrawlSpider):
                 if ('hours_forever' in game):
                     hours = float(game['hours_forever'].replace(',',''))
 
-                if hours < 1:
-                    # Jogou menos de uma hora, provavelmente nem jogou direito, vamos parar por aqui
-                    break;
+                # if hours < 1:
+                #     # Jogou menos de uma hora, provavelmente nem jogou direito, vamos parar por aqui
+                #     break;
 
                 item = GameItem()
                 item['id_game'] = id_game
