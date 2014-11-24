@@ -123,13 +123,13 @@ stroke(0, 0, 0, 1)
 strokewidth(1)
     
 fill(color(1, 0.5, 0.5, 0.25))
-pathW = VennCircle('Windows', oval(0, 0, 4096, 4096))
+pathW = VennCircle('Windows', oval(250, 0, 3500, 3500))
     
 fill(color(0.5, 1, 0.5, 0.25))
-pathM = VennCircle('Mac', oval(1000, 1500, 1750, 1750))
+pathM = VennCircle('Mac', oval(750, 2000, 2000, 2000))
     
 fill(color(0.5, 0.5, 1, 0.25))
-pathL = VennCircle('Linux', oval(1800, 1500, 1750, 1750))
+pathL = VennCircle('Linux', oval(1550, 2300, 1750, 1750))
 
 cursor.execute(request)
 
