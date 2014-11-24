@@ -9,10 +9,15 @@ class VennCircle:
 def drawNames(windows, mac, linux, name, tam):
     x = 0
     y = 0
+    path = 0
     
     font("Helvetica", tam)
     
-    fill(0.25, 0.25, 0.25, 0.8)
+    fill(windows, mac, linux, 0.75)
+    stroke(0.1)
+    
+    if tam < 20:
+        nostroke()
     
     if windows > 0.5 and not mac > 0.5 and not linux > 0.5:
         while True:
@@ -86,15 +91,16 @@ def drawNames(windows, mac, linux, name, tam):
                 
     else:
         return
-                
+
     t = textpath(name, x, y)
+
+    a = t.difference(path)
     
-    #for point in t:
-    #    if not path.contains(point.x, point.y):
-    #        print name
-    #        return
+    if a.length > 0:
+        drawNames(windows, mac, linux, name, tam-1)
             
-    drawpath(t)
+    else:
+        drawpath(t)
 
 
 DB_NAME = 'steampunk'
@@ -111,23 +117,28 @@ request = ("SELECT developer.name AS nome, AVG(software.mac) AS mac, AVG(softwar
     "GROUP BY developer.name "
     "ORDER BY total DESC")
 
-size(2048, 2048)
+size(4096, 4096)
 
 stroke(0, 0, 0, 1)
 strokewidth(1)
     
-fill(color(1, 0.5, 0.5, 0.5))
-pathW = VennCircle('Windows', oval(400, 100, 1200, 1200))
+fill(color(1, 0.5, 0.5, 0.25))
+pathW = VennCircle('Windows', oval(0, 0, 4096, 4096))
     
-fill(color(0.5, 1, 0.5, 0.5))
-pathM = VennCircle('Mac', oval(400, 700, 800, 800))
+fill(color(0.5, 1, 0.5, 0.25))
+pathM = VennCircle('Mac', oval(1000, 1500, 1750, 1750))
     
-fill(color(0.5, 0.5, 1, 0.5))
-pathL = VennCircle('Linux', oval(800, 700, 800, 800))
+fill(color(0.5, 0.5, 1, 0.25))
+pathL = VennCircle('Linux', oval(1800, 1500, 1750, 1750))
 
 cursor.execute(request)
 
 for nome, mac, linux, windows, total in cursor:
+    if total < 10:
+        total = 10
+    elif total > 200:
+        total = 200
+        
     drawNames(windows, mac, linux, nome, total)
 
 cursor.close()
