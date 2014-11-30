@@ -4,9 +4,12 @@ from mysql.connector import errorcode
 
 imgMoney = "/Users/DaniloIkuta/Desktop/resources/money.png"
 imgLv = "/Users/DaniloIkuta/Desktop/resources/steamLogo.png"
+hexagonoBcc = "/Users/DaniloIkuta/Desktop/resources/hexagono.gif"
 
 def drawBcc(players, lv, price, x, y):
-	font("Helvetica", 25)
+	w, h = imagesize(hexagonoBcc)
+	image(hexagonoBcc, x - w / 2, y + 30 - h / 2)
+	font("Helvetica", 50)
 	name = "BCC"
 	text(name, x - textwidth(name) / 2, y + textheight(name) / 4)
     
@@ -67,47 +70,48 @@ def drawPrice(x, y, price):
     
 def drawCountry(name, players, lv, price):
     x = y = 0
-    if name == "us":
-        x = 783
+    name = name.upper()
+    if name == "US":
+        x = 700
         y = 823
         
-    elif name == "gb":
-        x = 1858
-        y = 657
+    elif name == "GB":
+        x = 1850
+        y = 600
         
-    elif name == "ru":
+    elif name == "RU":
         x = 2867
         y = 476
         
-    elif name == "ca":
-        x = 888
+    elif name == "CA":
+        x = 900
         y = 545
         
-    elif name == "de":
+    elif name == "DE":
         x = 2000
         y = 750
         
-    elif name == "au":
+    elif name == "AU":
         x = 3415
         y = 1795
         
-    elif name == "se":
+    elif name == "SE":
         x = 2056
-        y = 532
+        y = 500
         
-    elif name == "br":
-        x = 1285
+    elif name == "BR":
+        x = 1350
         y = 1583
         
-    elif name == "pl":
-        x = 2088
-        y = 718
+    elif name == "PL":
+        x = 2150
+        y = 750
         
-    elif name == "fr":
-        x = 1918
-        y = 811
+    elif name == "FR":
+        x = 1850
+        y = 900
         
-    font("Helvetica", 25)
+    font("Helvetica", 50)
     text(name, x - textwidth(name) / 2, y + textheight(name) / 4)
     
     drawPrice(x - textwidth(name) / 2, y + textheight(name) / 4, price)

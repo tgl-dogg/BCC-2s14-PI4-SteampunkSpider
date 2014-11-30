@@ -1,5 +1,7 @@
 import mysql.connector
 from mysql.connector import errorcode
+
+names = []
         
 class VennCircle:
     def __init__(self, name, path):
@@ -96,10 +98,23 @@ def drawNames(windows, mac, linux, name, tam):
 
     a = t.difference(path)
     
+    draw = True
+    
+    for p in names:
+        if t.intersects(p):
+            draw = False
+            drawNames(windows, mac, linux, name, tam - 1)
+            return
+    
     if a.length > 0:
-        drawNames(windows, mac, linux, name, tam-1)
+        draw = False
+        drawNames(windows, mac, linux, name, tam - 1)
+        return
             
-    else:
+    elif draw == True:
+        if tam >= 20:
+            print name
+            names.append(t)
         drawpath(t)
 
 
