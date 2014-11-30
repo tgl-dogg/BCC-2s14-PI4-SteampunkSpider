@@ -24,6 +24,18 @@ for country, players, totalLv, totalPrice in cursor:
 
     print country, players, totalLv, totalPrice, "\n"
 
+request2 = ("SELECT COUNT(bcc.id_player) AS players, SUM(bcc.level) AS totalLv, SUM(software.price) AS totalPrice "
+	"FROM (SELECT player.id_player, player.level, rel_player_software.fk_software FROM player "
+				"INNER JOIN rel_player_software ON player.id_player = rel_player_software.fk_player "
+			"WHERE player.bcc = 1 "
+			"GROUP BY player.id_player) AS bcc "
+		"INNER JOIN software ON software.id_software = bcc.fk_software")
+
+cursor.execute(request2)
+
+for players, totalLv, totalPrice in cursor:
+	print "BCC", players, totalLv, totalPrice
+
 cursor.close()
 db_conn.close()
 

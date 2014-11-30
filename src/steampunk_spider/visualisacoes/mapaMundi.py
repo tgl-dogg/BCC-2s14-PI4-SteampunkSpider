@@ -5,6 +5,14 @@ from mysql.connector import errorcode
 imgMoney = "/Users/DaniloIkuta/Desktop/resources/money.png"
 imgLv = "/Users/DaniloIkuta/Desktop/resources/steamLogo.png"
 
+def drawBcc(players, lv, price, x, y):
+	font("Helvetica", 25)
+	name = "BCC"
+	text(name, x - textwidth(name) / 2, y + textheight(name) / 4)
+    
+	drawPrice(x - textwidth(name) / 2, y + textheight(name) / 4, price * 10000)
+	drawLv(x - textwidth(name) / 2, y - textheight(name) / 4 - 32, lv * 10000)
+
 #def drawPlayers(x, y, players):
 
 def drawLv(x, y, lv):
@@ -130,7 +138,31 @@ cursor.execute(request)
 for country, players, totalLv, totalPrice in cursor:
     drawCountry(country, players, totalLv, totalPrice)
 
+request2 = ("SELECT COUNT(bcc.id_player) AS players, SUM(bcc.level) AS totalLv, SUM(software.price) AS totalPrice "
+    "FROM (SELECT player.id_player, player.level, rel_player_software.fk_software FROM player "
+                "INNER JOIN rel_player_software ON player.id_player = rel_player_software.fk_player "
+            "WHERE player.bcc = 1 "
+            "GROUP BY player.id_player) AS bcc "
+        "INNER JOIN software ON software.id_software = bcc.fk_software")
+
+cursor.execute(request2)
+
+for players, totalLv, totalPrice in cursor:
+	drawBcc(players, totalLv, totalPrice, 1694, 1609)
+
 cursor.close()
 db_conn.close()
+
+image(imgMoney, 0, HEIGHT - 134, 64, 64)
+image(imgLv, 0, HEIGHT - 72, 64, 64)
+
+sMoney = "Valor total do país em milhões de dólares (BCC em centenas de dólares)"
+sMoney = sMoney.decode('utf-8')
+sLv = "Nível total do país em milhões de níveis (BCC em centenas de níveis)"
+sLv = sLv.decode('utf-8')
+
+font("Helvetica", 50)
+text(sMoney, 70, HEIGHT - 80)
+text(sLv, 70, HEIGHT - 16)
 
 print ("connection ended")

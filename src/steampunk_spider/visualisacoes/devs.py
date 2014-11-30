@@ -144,4 +144,4 @@ for nome, mac, linux, windows, total in cursor:
 cursor.close()
 db_conn.close()
 
-print ("connection ended")
+print ("connection ended") 

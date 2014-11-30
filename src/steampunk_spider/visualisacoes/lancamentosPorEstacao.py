@@ -16,15 +16,26 @@ endpath(draw = False)
 
 drawpath(c)
         
-def createPath(ia, ea):
+def createPath(ia, ea, pathName, tam):
     stroke(0)
     pi = (768 * cos(ia), 768 * sin(ia))
     pf = (768 * cos(ea), 768 * sin(ea))
+    
+    ma = ia + ((ea - ia) / 2)
+    pm = (768 * cos(ma), 768 * sin(ma))
     
     pathCone = findpath([pi, pf, (0, 0)], 0)
     
     path = c.intersect(pathCone)
     drawpath(path)
+    
+    push()
+    fill(0)
+    font("Helvetica", tam / 8)
+    align(CENTER)
+
+    text(pathName, pm[0] / 2  - textmetrics(pathName, tam / 10)[0], pm[1] / 2 + textmetrics(pathName, tam / 10)[0])
+    pop()
     
     return pi, pf
     
@@ -42,11 +53,13 @@ def drawGraph(winter, spring, summer, fall):
     i = (0, 0)
     f = (0, 0)
     
-    fill(0.94, .97, 1, 1)
+    n = 0
     for month in winter:
+        fill(0.94, .97, 1, 1)
         angle = radians(month / total * 360)
-        pi, pf = createPath(stack, angle + stack)
+        pi, pf = createPath(stack, angle + stack, str(n + 1), month)
         stack += angle
+        n += 1
         
         if winter.index(month) == 0:
             i = pi
@@ -57,11 +70,13 @@ def drawGraph(winter, spring, summer, fall):
     drawText("Winter", float(sum(winter)), p)
     
     
-    fill(1, .88, 1, 1)
+    n = 0
     for month in spring:
+        fill(1, .88, 1, 1)
         angle = radians(month / total * 360)
-        pi, pf = createPath(stack, angle + stack)
+        pi, pf = createPath(stack, angle + stack, str(n + 4), month)
         stack += angle
+        n += 1
         
         if spring.index(month) == 0:
             i = pi
@@ -72,11 +87,13 @@ def drawGraph(winter, spring, summer, fall):
     drawText("Spring", float(sum(spring)), p)
         
         
-    fill(1, 1, .05, 1)
+    n = 0
     for month in summer:
+        fill(1, 1, .05, 1)
         angle = radians(month / total * 360)
-        pi, pf = createPath(stack, angle + stack)
+        pi, pf = createPath(stack, angle + stack, str(n + 7), month)
         stack += angle
+        n += 1
         
         if summer.index(month) == 0:
             i = pi
@@ -86,12 +103,14 @@ def drawGraph(winter, spring, summer, fall):
     p = ((i[0] + f[0]) / 4, (i[1] + f[1]) / 4)
     drawText("Summer", float(sum(summer)), p)
         
-        
-    fill(.87, .46, .28, 1)
+
+    n = 0
     for month in fall:
+        fill(.87, .46, .28, 1)
         angle = radians(month / total * 360)
-        pi, pf = createPath(stack, angle + stack)
+        pi, pf = createPath(stack, angle + stack, str(n + 10), month)
         stack += angle
+        n += 1
         
         if fall.index(month) == 0:
             i = pi
